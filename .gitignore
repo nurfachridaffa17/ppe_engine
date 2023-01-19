@@ -1,0 +1,15 @@
+__pycache__/
+
+*.pyc
+
+output/
+
+json/
+
+*.pt
+
+*.jpg
+
+*.png
+
+*.gif
