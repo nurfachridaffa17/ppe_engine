@@ -1,15 +1,14 @@
 __pycache__/
 
 *.pyc
-
-output/
-
 json/
-
 *.pt
-
 *.jpg
-
 *.png
-
 *.gif
+*.jpeg
+
+docker-compose.yml
+
+config.py
+
