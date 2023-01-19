@@ -32,14 +32,17 @@ def get_ppe():
     nama_img = request.form.get('nama_img')
     detector = CustomObjectDetection()
     detector.setModelTypeAsYOLOv3()
-    detector.setModelPath("models/yolov3_ppe_train2_mAP-0.77405_epoch-24.pt")
-    detector.setJsonPath("json/ppe_train2_yolov3_detection_config.json")
+    detector.setModelPath("engine_ppe/models/yolov3_ppe_train2_mAP-0.77405_epoch-24.pt")
+    detector.setJsonPath("engine_ppe/json/ppe_train2_yolov3_detection_config.json")
     detector.loadModel()
     detector.useCPU()
-    detections = detector.detectObjectsFromImage(input_image="images/images.jpeg",
-                                    output_image_path="output/images.jpeg",)
+    detections = detector.detectObjectsFromImage(input_image="engine_ppe/images/{}".format(nama_img),
+                                    output_image_path="engine_ppe/output/{}".format(nama_img),)
     for detection in detections:
         print(detection["name"], " : ", detection["percentage_probability"], " : ", detection["box_points"])
+    
+    return detections
+
 
 
 
