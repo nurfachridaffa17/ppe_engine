@@ -1,8 +1,10 @@
 from imageai.Detection.Custom import CustomObjectDetection
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, send_file
 from werkzeug.utils import secure_filename
 import os
 from . import app
+import secrets
+import json
 
 # Path: engine_ppe/views.py
 
@@ -10,8 +12,31 @@ def allowed_file(filename):
     return '.' in filename and \
            filename.rsplit('.', 1)[1].lower() in app.config['ALLOWED_EXTENSIONS']
 
+@app.route('/api/v1/get/token', methods=['GET'])
+def get_token():
+    api_token = secrets.token_hex(16)
+
+    with open("engine_ppe/config.json", "r") as f:
+        config = json.load(f)
+
+    config["api_token"] = api_token
+
+    with open("engine_ppe/config.json", "w") as f:
+        json.dump(config, f)
+    
+    return jsonify({'status': 200, 'message': 'Token generated successfully', 'token': api_token})
+
+
 @app.route('/api/v1/dowloads/image', methods=['POST'])
 def get_image():
+
+    authorization = request.headers.get('Authorization')
+    with open("engine_ppe/config.json", "r") as f:
+        config = json.load(f)
+    
+    if authorization != config["api_token"]:
+        return jsonify({'status': 401, 'message': 'Unauthorized'})
+
     if 'file_image' not in request.files:
         return jsonify({'status': 400, 'message': 'No file part'})
 
@@ -29,6 +54,13 @@ def get_image():
 
 @app.route('/api/v1/ppe', methods=['GET', 'POST'])
 def get_ppe():
+    authorization = request.headers.get('Authorization')
+    with open("engine_ppe/config.json", "r") as f:
+        config = json.load(f)
+    
+    if authorization != config["api_token"]:
+        return jsonify({'status': 401, 'message': 'Unauthorized'})
+
     nama_img = request.form.get('nama_img')
     detector = CustomObjectDetection()
     detector.setModelTypeAsYOLOv3()
@@ -41,7 +73,25 @@ def get_ppe():
     for detection in detections:
         print(detection["name"], " : ", detection["percentage_probability"], " : ", detection["box_points"])
     
-    return detections
+    output_img = "engine_ppe/output/{}".format(nama_img)
+
+    return detection
+
+@app.route('/api/v1.upload/<path:filename>', methods=['GET'])
+def upload_image(filename):
+    authorization = request.headers.get('Authorization')
+    with open("engine_ppe/config.json", "r") as f:
+        config = json.load(f)
+    
+    if authorization != config["api_token"]:
+        return jsonify({'status': 401, 'message': 'Unauthorized'})
+    
+    try:
+        return send_file("engine_ppe/output/{}".format(filename), mimetype='image/jpg', as_attachment=True)
+    except FileNotFoundError:
+        return jsonify({'status': 404, 'message': 'File not found'})
+
+    
 
 
 

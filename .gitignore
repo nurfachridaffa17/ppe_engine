@@ -12,3 +12,5 @@ docker-compose.yml
 
 config.py
 
+config.json
+

@@ -7,6 +7,7 @@
 2. Insert your models which is already your trainning inside folder models
 3. In folder image, after you post an image in another platform it will receipt here
 4. After you add the folders you have to add config.py
+5. Create config.json for save your api key if you don't want to save it in your code or your database
 
 - Inside config.py
 
@@ -25,6 +26,6 @@ class Config(object):
 ``` 
 
 
-5. Build your docker image
-6. Run your docker image "docker-compose build"
-7. after you build your docker image you can run it "docker-compose up"
+6. Build your docker image
+7. Run your docker image "docker-compose build"
+8. after you build your docker image you can run it "docker-compose up"
