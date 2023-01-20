@@ -35,7 +35,10 @@ def get_image():
         config = json.load(f)
     
     if authorization != config["api_token"]:
+        return jsonify({'status': 403, 'message': 'Invalid Api Key'})
+    elif authorization is None:
         return jsonify({'status': 401, 'message': 'Unauthorized'})
+
 
     if 'file_image' not in request.files:
         return jsonify({'status': 400, 'message': 'No file part'})
@@ -75,7 +78,7 @@ def get_ppe():
     
     output_img = "engine_ppe/output/{}".format(nama_img)
 
-    return detection
+    return detections
 
 @app.route('/api/v1.upload/<path:filename>', methods=['GET'])
 def upload_image(filename):
