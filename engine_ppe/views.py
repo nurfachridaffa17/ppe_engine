@@ -1,5 +1,5 @@
 from imageai.Detection.Custom import CustomObjectDetection
-from flask import Flask, request, jsonify, make_response
+from flask import Flask, request, jsonify, make_response, render_template
 from werkzeug.utils import secure_filename
 import os
 from . import app
@@ -81,12 +81,17 @@ def get_image():
         safety_list.append(safety)
     
     os.remove("engine_ppe/images/{}".format(nama_img))
+
+    safety_helmet = "safety_helmet" in safety_list
+    safety_shoes = "safety_shoes" in safety_list
+    not_safety_helmet = "safety_helmet" not in safety_list
+    not_safety_shoes = "safety_shoes" not in safety_list
     
-    if "safety_shoes" in safety_list and "safety_helmet" in safety_list:
+    if safety_helmet and safety_shoes:
         return make_response(jsonify({'status': 200, 'message': 'Image processed successfully', "safety_helmet": True, "safety_shoes": True}),200)
-    elif "safety_shoes" in safety_list and "safety_helmet" not in safety_list:
+    elif not_safety_helmet and safety_shoes:
         return make_response(jsonify({'status': 200, 'message': 'Image processed successfully', "safety_helmet": False, "safety_shoes": True}),200)
-    elif "safety_shoes" not in safety_list and "safety_helmet" in safety_list:
+    elif safety_helmet and not_safety_shoes:
         return make_response(jsonify({'status': 200, 'message': 'Image processed successfully', "safety_helmet": True, "safety_shoes": False}),200)
     else:
         return make_response(jsonify({'status': 200, 'message': 'Image processed successfully', "safety_helmet": False, "safety_shoes": False}),200)
@@ -120,6 +125,18 @@ def get_image():
 #         return send_file("engine_ppe/output/{}".format(filename), mimetype='image/jpg', as_attachment=True)
 #     except FileNotFoundError:
 #         return jsonify({'status': 404, 'message': 'File not found'})
+
+@app.errorhandler(404)
+def not_found(error):
+    return render_template('404.html'), 404
+
+@app.errorhandler(500)
+def internal_error(error):
+    return jsonify(status="error", error_code=500, message="Internal Server Error"), 500
+
+@app.errorhandler(400)
+def bad_request(error):
+    return jsonify(status="error", error_code=400, message="Bad Request"), 400
 
     
 
