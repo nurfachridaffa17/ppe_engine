@@ -25,7 +25,7 @@ def get_token():
     with open("engine_ppe/config.json", "w") as f:
         json.dump(config, f)
     
-    return jsonify({'status': 200, 'message': 'Token generated successfully', 'token': api_token})
+    return jsonify({'status': 200, 'message': 'Token generated successfully', 'token': api_token}), 200
 
 
 @app.route('/api/v1/process/image', methods=['POST', 'GET'])
@@ -36,9 +36,9 @@ def get_image():
         config = json.load(f)
     
     if authorization != config["api_token"]:
-        return jsonify({'status': 403, 'message': 'Invalid Api Key'})
+        return jsonify({'status': 403, 'message': 'Invalid Api Key'}), 403
     elif authorization is None:
-        return jsonify({'status': 401, 'message': 'Unauthorized'})
+        return jsonify({'status': 401, 'message': 'Unauthorized'}), 401
 
 
     if 'file_image' not in request.files:
@@ -48,7 +48,7 @@ def get_image():
     # file = request.data
 
     if file.filename == '':
-        return jsonify({'status': 400, 'message': 'No selected file'})
+        return jsonify({'status': 400, 'message': 'No selected file'}), 400
 
     if file and allowed_file(file.filename):
         filename = secure_filename(file.filename)
@@ -83,6 +83,8 @@ def get_image():
 
     response.headers.set('Content-Type', 'application/json')
     response.headers.set('Content-Disposition', 'attachment', filename='output/{}'.format(nama_img))
+
+    os.remove("engine_ppe/images/{}".format(nama_img))
 
     return response
     # send_file("output/{}".format(nama_img), mimetype='image/jpg', as_attachment=True)
