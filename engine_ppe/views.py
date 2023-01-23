@@ -1,5 +1,5 @@
 from imageai.Detection.Custom import CustomObjectDetection
-from flask import Flask, request, jsonify, send_file
+from flask import Flask, request, jsonify, make_response
 from werkzeug.utils import secure_filename
 import os
 from . import app
@@ -36,9 +36,9 @@ def get_image():
         config = json.load(f)
     
     if authorization != config["api_token"]:
-        return jsonify({'status': 403, 'message': 'Invalid Api Key'}), 403
+        return make_response(jsonify({'status': 401, 'message': 'Unauthorized'}), 401)
     elif authorization is None:
-        return jsonify({'status': 401, 'message': 'Unauthorized'}), 401
+        return make_response(jsonify({'status': 401, 'message': 'Unauthorized'}), 401)
 
 
     if 'file_image' not in request.files:
@@ -48,7 +48,7 @@ def get_image():
     # file = request.data
 
     if file.filename == '':
-        return jsonify({'status': 400, 'message': 'No selected file'}), 400
+        return make_response(jsonify({'status': 400, 'message': 'No selected file'}), 400)
 
     if file and allowed_file(file.filename):
         filename = secure_filename(file.filename)
@@ -73,20 +73,34 @@ def get_image():
     detector.useCPU()
     detections = detector.detectObjectsFromImage(input_image="engine_ppe/images/{}".format(nama_img),
                                     output_image_path="engine_ppe/output/{}".format(nama_img),)
-    for detection in detections:
-        print(detection["name"], " : ", detection["percentage_probability"], " : ", detection["box_points"])
     
-    with open("engine_ppe/output/{}".format(nama_img), "rb") as image_file:
-        encoded_string = base64.b64encode(image_file.read()).decode('utf-8')
+    safety_list = []
 
-    response = jsonify({'status': 200, 'message': 'Image processed successfully', 'image': encoded_string})
-
-    response.headers.set('Content-Type', 'application/json')
-    response.headers.set('Content-Disposition', 'attachment', filename='output/{}'.format(nama_img))
-
+    for detection in detections:
+        safety = detection["name"]
+        safety_list.append(safety)
+    
     os.remove("engine_ppe/images/{}".format(nama_img))
+    
+    if "safety_shoes" in safety_list and "safety_helmet" in safety_list:
+        return make_response(jsonify({'status': 200, 'message': 'Image processed successfully', "safety_helmet": True, "safety_shoes": True}),200)
+    elif "safety_shoes" in safety_list and "safety_helmet" not in safety_list:
+        return make_response(jsonify({'status': 200, 'message': 'Image processed successfully', "safety_helmet": False, "safety_shoes": True}),200)
+    elif "safety_shoes" not in safety_list and "safety_helmet" in safety_list:
+        return make_response(jsonify({'status': 200, 'message': 'Image processed successfully', "safety_helmet": True, "safety_shoes": False}),200)
+    else:
+        return make_response(jsonify({'status': 200, 'message': 'Image processed successfully', "safety_helmet": False, "safety_shoes": False}),200)
 
-    return response
+        # print(detection["name"], " : ", detection["percentage_probability"], " : ", detection["box_points"])
+    
+    # with open("engine_ppe/output/{}".format(nama_img), "rb") as image_file:
+    #     encoded_string = base64.b64encode(image_file.read()).decode('utf-8')
+
+    # response = jsonify({'status': 200, 'message': 'Image processed successfully', 'image': encoded_string})
+
+    # response.headers.set('Content-Type', 'application/json')
+    # response.headers.set('Content-Disposition', 'attachment', filename='output/{}'.format(nama_img))
+    # return response
     # send_file("output/{}".format(nama_img), mimetype='image/jpg', as_attachment=True)
     
     # time.sleep(5)
