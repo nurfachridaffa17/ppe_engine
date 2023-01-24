@@ -31,23 +31,23 @@ class Config(object):
 
 - File structure
 
-- ppe_recognition
-    - [] engine_ppe
-        - [] json
-            - [] ppe_training.json
-        - [] models
-            - [] models_training.pt
-        - [] static
-            - [] image_in
-            - [] image_out
-        - templates
-            - [] 404.html
-        - [] __init__.py
-        - [] models.py
-        - [] views.py
-    - [] config.py
-    - [] Dockerfile
-    - [] docker-compose.yml
-    - [] README.md
-    - [] requirements.txt
-    - [] run.py
+    - ppe_recognition
+        - [x] engine_ppe
+            - [x] json
+                - [x] ppe_training.json
+            - [x] models
+                - [x] models_training.pt
+            - [x] static
+                - [x] image_in
+                - [x] image_out
+            - [x] templates
+                - [x] 404.html
+            - [x] __init__.py
+            - [x] models.py
+            - [x] views.py
+        - [x] config.py
+        - [x] Dockerfile
+        - [x] docker-compose.yml
+        - [x] README.md
+        - [x] requirements.txt
+        - [x] run.py

@@ -69,10 +69,14 @@ def get_image():
         file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
         
     nama_img = file.filename
+
+    model_path = app.config['MODELS_PPE']
+    json_path = app.config['JSON_PPE']
+
     detector = CustomObjectDetection()
     detector.setModelTypeAsYOLOv3()
-    detector.setModelPath("engine_ppe/models/yolov3_ppe_train2_mAP-0.77405_epoch-24.pt")
-    detector.setJsonPath("engine_ppe/json/ppe_train2_yolov3_detection_config.json")
+    detector.setModelPath(model_path)
+    detector.setJsonPath(json_path)
     detector.loadModel()
     detector.useCPU()
     detections = detector.detectObjectsFromImage(input_image="engine_ppe/static/image_in/{}".format(nama_img),
@@ -86,7 +90,7 @@ def get_image():
     
     os.remove("engine_ppe/static/image_in/{}".format(nama_img))
 
-    link = 'http://' + app.config['SERVER_NAME'] + "/api/v1/upload/{}".format(nama_img)
+    link = app.config['SERVER_SAVE'] + "/api/v1/upload/{}".format(nama_img)
 
     safety_helmet = "safety_helmet" in safety_list
     safety_shoes = "safety_shoes" in safety_list
