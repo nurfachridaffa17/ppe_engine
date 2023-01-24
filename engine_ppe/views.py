@@ -37,7 +37,7 @@ def upload_image(filename):
         return make_response(jsonify({'status': 401, 'message': 'Unauthorized'}), 401)
     
     try:
-        return send_from_directory('output', filename, as_attachment=True)
+        return send_from_directory('static/image_out', filename, as_attachment=True)
     except FileNotFoundError:
         return make_response(jsonify({'status': 404, 'message': 'File not found'}), 404)
 
@@ -75,8 +75,8 @@ def get_image():
     detector.setJsonPath("engine_ppe/json/ppe_train2_yolov3_detection_config.json")
     detector.loadModel()
     detector.useCPU()
-    detections = detector.detectObjectsFromImage(input_image="engine_ppe/images/{}".format(nama_img),
-                                    output_image_path="engine_ppe/output/{}".format(nama_img),)
+    detections = detector.detectObjectsFromImage(input_image="engine_ppe/static/image_in/{}".format(nama_img),
+                                    output_image_path="engine_ppe/static/image_out/{}".format(nama_img),)
     
     safety_list = []
 
@@ -84,7 +84,7 @@ def get_image():
         safety = detection["name"]
         safety_list.append(safety)
     
-    os.remove("engine_ppe/images/{}".format(nama_img))
+    os.remove("engine_ppe/static/image_in/{}".format(nama_img))
 
     link = 'http://' + app.config['SERVER_NAME'] + "/api/v1/upload/{}".format(nama_img)
 
@@ -105,7 +105,7 @@ def get_image():
 
 @app.errorhandler(404)
 def not_found(error):
-    return render_template('404.html'), 404
+    return render_template('404.html', error=error), 404
 
 @app.errorhandler(500)
 def internal_error(error):
