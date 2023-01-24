@@ -5,7 +5,6 @@ import os
 from . import app
 import secrets
 import json
-import base64
 
 # Path: engine_ppe/views.py
 
@@ -113,11 +112,11 @@ def not_found(error):
 
 @app.errorhandler(500)
 def internal_error(error):
-    return jsonify(status="error", error_code=500, message="Internal Server Error"), 500
+    return make_response(jsonify({'status': 500, 'message': 'Internal Server Error'}), 500)
 
 @app.errorhandler(400)
 def bad_request(error):
-    return jsonify(status="error", error_code=400, message="Bad Request"), 400
+    return make_response(jsonify({'status': 400, 'message': 'Bad Request'}), 400)
 
     
 
